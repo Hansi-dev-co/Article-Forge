@@ -15,27 +15,54 @@ const AboutPage: FC = () => {
         </p>
       </div>
 
-      <div className="mt-16 grid md:grid-cols-2 gap-16 items-center">
-        <div>
-          <Image
-            src="https://placehold.co/600x500.png"
-            alt="Team working on Article Forge"
-            width={600}
-            height={500}
-            className="rounded-xl shadow-2xl"
-            data-ai-hint="team collaboration"
-          />
-        </div>
-        <div className="prose prose-lg dark:prose-invert max-w-none">
-          <h2 className="font-headline text-3xl font-bold">Our Mission</h2>
-          <p>
-            Our mission is to provide a seamless and intelligent writing experience. We believe that technology should assist, not complicate. By integrating AI in a meaningful way, we help you focus on what you do best: creating compelling stories and sharing your knowledge with the world.
-          </p>
-          <h3 className="font-headline text-2xl font-bold mt-8">The Technology</h3>
-          <p>
-            Article Forge is built on a modern tech stack to ensure a fast, reliable, and scalable platform. We leverage the power of Next.js for a performant web experience and Genkit for our state-of-the-art AI features.
-          </p>
-        </div>
+      <div className="mt-16 prose prose-lg dark:prose-invert max-w-4xl mx-auto">
+        <h2 className="font-headline text-3xl font-bold text-center">How We Are Made</h2>
+
+        <h3 className="font-headline text-2xl font-bold mt-8">High-Level Purpose</h3>
+        <p>
+          Article Forge is a modern web application designed for writers, bloggers, and content creators. Its primary goal is to provide a streamlined and intelligent environment for crafting articles. It combines a user-friendly Markdown editor with AI-powered assistance to make the writing and publishing process more efficient.
+        </p>
+
+        <h3 className="font-headline text-2xl font-bold mt-8">Core Features & Pages</h3>
+        
+        <h4>Homepage (/)</h4>
+        <p>
+          <strong>Function:</strong> This is the main landing page that introduces new users to the application.<br/>
+          <strong>Content:</strong> It features a prominent headline, a brief description of what Article Forge does, and clear call-to-action buttons that guide users to either start creating (/upload) or learn more about the platform (/about). It also highlights key features like the editor, AI tagging, and user accounts.
+        </p>
+        
+        <h4>Article Editor & Upload Page (/upload)</h4>
+        <p>
+          <strong>Function:</strong> This is the heart of the application where users write and edit their content.
+        </p>
+        <ul>
+          <li><strong>Markdown Editor:</strong> A simple text area with toolbar buttons for basic formatting like bold, italic, and embedding images.</li>
+          <li><strong>File Upload:</strong> Users can upload existing articles (.txt or .md files) from their computer directly into the editor.</li>
+          <li><strong>Live Preview:</strong> A tab to instantly see how the formatted Markdown content will appear as rendered HTML.</li>
+          <li><strong>AI Tag Suggestions:</strong> A key feature where users can click a button to have Genkit's AI analyze the article's content and automatically suggest relevant tags.</li>
+        </ul>
+        
+        <h4>About Page (/about)</h4>
+        <p>
+          <strong>Function:</strong> Provides background information on the application's mission and the technology it uses.<br/>
+          <strong>Content:</strong> It explains the core principles behind Article Forge: being creator-centric, using AI as an intelligent assistant, and prioritizing performance. It mentions the use of Next.js and Genkit.
+        </p>
+
+        <h4>Login Page (/login)</h4>
+        <p>
+          <strong>Function:</strong> A standard, visually appealing page for user authentication.<br/>
+          <strong>Content:</strong> It includes a form for an email and password. Currently, this is a placeholder UI and doesn't have a functional authentication system connected.
+        </p>
+
+        <h3 className="font-headline text-2xl font-bold mt-8">Technical Stack & Architecture</h3>
+        <ul>
+            <li><strong>Frontend:</strong> Built with Next.js and React, ensuring a fast, server-rendered user experience. The UI components are from ShadCN UI, styled with Tailwind CSS, giving it a modern and clean look.</li>
+            <li><strong>Backend & AI:</strong> Next.js also serves as the web backend, handling page routing and server-side rendering. Genkit is used for the AI functionality. The "Suggest Tags" feature is powered by a Genkit flow that sends the article content to a Google AI model (Gemini) and gets structured tag suggestions back.</li>
+            <li><strong>User Experience:</strong> The application is fully responsive and works on both desktop and mobile devices. It includes a dark/light theme toggle in the header, allowing users to choose their preferred viewing mode, with the preference remembered.</li>
+        </ul>
+        <p>
+          In essence, Article Forge is a well-structured starter project that demonstrates how to build a modern, full-stack web application with integrated AI features using a professional and scalable tech stack.
+        </p>
       </div>
       
       <div className="mt-24">
