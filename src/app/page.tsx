@@ -1,236 +1,112 @@
-"use client";
-
-import { useState, useRef, type ChangeEvent, type FC } from 'react';
-import { Bold, Italic, Image as ImageIcon, Sparkles, Loader2, Upload } from 'lucide-react';
-import { suggestTags } from '@/ai/flows/suggest-tags';
-
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { FileText, Lightbulb, LogIn } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
+import type { FC } from 'react';
 
-const ArticleForgePage: FC = () => {
-  const [title, setTitle] = useState<string>('My Awesome Article');
-  const [content, setContent] = useState<string>("This is an article about the future of technology. I will discuss **Artificial Intelligence**, *Extended Reality*, and maybe even a bit of Quantum Computing.");
-  const [tags, setTags] = useState<string[]>(['Technology', 'Innovation']);
-  const [isLoadingTags, setIsLoadingTags] = useState<boolean>(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
-
-  const handleFormat = (formatType: 'bold' | 'italic') => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = content.substring(start, end);
-    const wrapChar = formatType === 'bold' ? '**' : '*';
-    const newText = `${content.substring(0, start)}${wrapChar}${selectedText}${wrapChar}${content.substring(end)}`;
-
-    setContent(newText);
-    textarea.focus();
-    setTimeout(() => {
-        textarea.selectionStart = start + wrapChar.length;
-        textarea.selectionEnd = end + wrapChar.length;
-    }, 0);
-  };
-
-  const handleImageEmbed = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    
-    const placeholderImage = '![Image Description](https://placehold.co/600x400.png)';
-    const start = textarea.selectionStart;
-    
-    const newContent = `${content.substring(0, start)}\n${placeholderImage}\n${content.substring(start)}`;
-    setContent(newContent);
-  };
-  
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.type.startsWith('text/')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const text = e.target?.result as string;
-          setContent(text);
-          toast({
-            title: 'File Uploaded',
-            description: `"${file.name}" has been loaded into the editor.`,
-          });
-        };
-        reader.onerror = () => {
-            toast({
-                title: 'Error Reading File',
-                description: 'There was an error reading the file.',
-                variant: 'destructive',
-            });
-        };
-        reader.readAsText(file);
-      } else {
-        toast({
-          title: 'Invalid File Type',
-          description: 'Please upload a plain text file (e.g., .txt, .md).',
-          variant: 'destructive',
-        });
-      }
-    }
-    // Reset file input to allow uploading the same file again
-    if(event.target) {
-        event.target.value = '';
-    }
-  };
-
-
-  const handleSuggestTags = async () => {
-    if (!content.trim()) {
-      toast({
-        title: "Content is empty",
-        description: "Please write something in the article before suggesting tags.",
-        variant: 'destructive',
-      });
-      return;
-    }
-    setIsLoadingTags(true);
-    try {
-      const result = await suggestTags({ articleContent: content });
-      setTags(Array.from(new Set([...tags, ...result.tags])));
-      toast({
-        title: "Tags Suggested",
-        description: "New tags have been added based on your article's content.",
-      });
-    } catch (error) {
-      console.error("Error suggesting tags:", error);
-      toast({
-        title: "Error",
-        description: "Could not suggest tags. Please try again later.",
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoadingTags(false);
-    }
-  };
-
-  const renderPreview = () => {
-    const htmlContent = content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/!\[(.*?)\]\((.*?)\)/g, '<img alt="$1" src="$2" class="rounded-lg my-4 max-w-full h-auto shadow-md" data-ai-hint="article image" />')
-      .replace(/\n/g, '<br />');
-
-    return (
-      <div 
-        className="prose prose-lg dark:prose-invert max-w-none" 
-        dangerouslySetInnerHTML={{ __html: htmlContent }} 
-      />
-    );
-  };
-
+const HomePage: FC = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-4 sm:p-6 lg:p-8">
-      <header className="w-full max-w-4xl mb-8 text-center">
-        <h1 className="font-headline text-4xl sm:text-5xl font-bold tracking-tight text-primary">Article Forge</h1>
-        <p className="text-muted-foreground mt-2 text-lg">Craft, format, and tag your articles with ease.</p>
-      </header>
-
-      <main className="w-full max-w-4xl">
-        <Card className="shadow-2xl shadow-primary/10">
-          <CardHeader>
-            <CardTitle className="font-headline text-2xl tracking-wide">Create New Article</CardTitle>
-            <CardDescription>Fill in the details below to start your masterpiece.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <div>
-                <Label htmlFor="title" className="text-lg font-medium">Title</Label>
-                <Input
-                  id="title"
-                  type="text"
-                  value={title}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
-                  placeholder="Your article title"
-                  className="mt-2 text-lg p-4"
-                />
-              </div>
-
-              <Tabs defaultValue="editor" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="editor">Editor</TabsTrigger>
-                  <TabsTrigger value="preview">Preview</TabsTrigger>
-                </TabsList>
-                <TabsContent value="editor">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 p-2 bg-muted rounded-md border">
-                        <Button variant="ghost" size="icon" onClick={() => handleFormat('bold')} aria-label="Bold">
-                            <Bold className="h-5 w-5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleFormat('italic')} aria-label="Italic">
-                            <Italic className="h-5 w-5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={handleImageEmbed} aria-label="Embed Image">
-                            <ImageIcon className="h-5 w-5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={handleUploadClick} aria-label="Upload Article">
-                            <Upload className="h-5 w-5" />
-                        </Button>
-                        <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            onChange={handleFileChange} 
-                            className="hidden" 
-                            accept="text/plain,text/markdown,.md,.txt"
-                        />
-                    </div>
-                    <Textarea
-                      ref={textareaRef}
-                      value={content}
-                      onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
-                      placeholder="Start writing your amazing article here..."
-                      className="min-h-[400px] text-base p-4"
-                    />
-                  </div>
-                </TabsContent>
-                <TabsContent value="preview">
-                    <div className="min-h-[400px] rounded-md border bg-muted/30 p-4">
-                        <h2 className="font-headline text-3xl font-bold mb-4 border-b pb-2">{title}</h2>
-                        {renderPreview()}
-                    </div>
-                </TabsContent>
-              </Tabs>
-            </div>
-          </CardContent>
-          <CardFooter className="flex-col items-start gap-4">
-            <div>
-              <Label className="text-lg font-medium">Tags</Label>
-              <div className="flex flex-wrap items-center gap-2 mt-2">
-                {tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="text-sm py-1 px-3 cursor-pointer hover:bg-primary/20">{tag}</Badge>
-                ))}
-              </div>
-            </div>
-            <Button onClick={handleSuggestTags} disabled={isLoadingTags} variant="outline">
-              {isLoadingTags ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="mr-2 h-4 w-4 text-accent" />
-              )}
-              {isLoadingTags ? 'Analyzing...' : 'Suggest Tags with AI'}
+    <div className="flex flex-col">
+      <section className="text-center py-20 sm:py-32 bg-gradient-to-b from-background to-card/20">
+        <div className="container mx-auto px-4">
+          <h1 className="font-headline text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-primary">
+            Welcome to Article Forge
+          </h1>
+          <p className="mt-4 max-w-2xl mx-auto text-lg sm:text-xl text-muted-foreground">
+            The ultimate platform to effortlessly craft, format, and enhance your articles with the power of AI.
+          </p>
+          <div className="mt-8 flex justify-center gap-4">
+            <Button size="lg" asChild>
+              <Link href="/upload">Get Started</Link>
             </Button>
-          </CardFooter>
-        </Card>
-      </main>
+            <Button size="lg" variant="outline" asChild>
+              <Link href="/about">Learn More</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 sm:py-24">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="prose prose-lg dark:prose-invert max-w-none">
+                <h2 className="font-headline text-3xl font-bold">What is Article Forge?</h2>
+                <p>
+                    Article Forge is a revolutionary tool designed for writers, bloggers, and content creators who want to streamline their writing process. From drafting and formatting with Markdown to generating intelligent tags, we provide everything you need to produce high-quality content faster.
+                </p>
+                <ul>
+                    <li>Intuitive Markdown editor with live preview.</li>
+                    <li>AI-powered tag suggestions to improve discoverability.</li>
+                    <li>Simple file uploads to bring in your existing work.</li>
+                    <li>Clean, modern, and focused writing environment.</li>
+                </ul>
+            </div>
+            <div>
+              <Image 
+                src="https://placehold.co/600x400.png" 
+                alt="Article Forge Editor"
+                width={600}
+                height={400}
+                className="rounded-lg shadow-2xl"
+                data-ai-hint="digital editor screenshot"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 sm:py-24 bg-card/20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="font-headline text-3xl sm:text-4xl font-bold">Key Features</h2>
+            <p className="mt-2 text-muted-foreground max-w-xl mx-auto">Discover the tools that will elevate your writing experience.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Card>
+              <CardHeader className="items-center">
+                <div className="p-3 bg-primary/10 rounded-full mb-2">
+                    <FileText className="h-8 w-8 text-primary" />
+                </div>
+                <CardTitle>Upload Articles</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <CardDescription>
+                  Easily upload your existing articles in text or markdown format and continue your work right where you left off.
+                </CardDescription>
+              </CardContent>
+            </Card>
+             <Card>
+              <CardHeader className="items-center">
+                <div className="p-3 bg-primary/10 rounded-full mb-2">
+                    <Lightbulb className="h-8 w-8 text-primary" />
+                </div>
+                <CardTitle>AI Tag Suggestions</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <CardDescription>
+                  Let our intelligent AI analyze your content and suggest relevant tags to boost your article's visibility and organization.
+                </CardDescription>
+              </CardContent>
+            </Card>
+             <Card>
+              <CardHeader className="items-center">
+                <div className="p-3 bg-primary/10 rounded-full mb-2">
+                    <LogIn className="h-8 w-8 text-primary" />
+                </div>
+                <CardTitle>Easy Login</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <CardDescription>
+                  Create an account to save your work, manage your articles, and access your content from anywhere.
+                </CardDescription>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
 
-export default ArticleForgePage;
+export default HomePage;
