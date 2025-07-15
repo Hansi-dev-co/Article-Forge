@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, type ChangeEvent, type FC } from 'react';
-import { Bold, Italic, Image as ImageIcon, Sparkles, Loader2 } from 'lucide-react';
+import { Bold, Italic, Image as ImageIcon, Sparkles, Loader2, Upload } from 'lucide-react';
 import { suggestTags } from '@/ai/flows/suggest-tags';
 
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ const ArticleForgePage: FC = () => {
   const [tags, setTags] = useState<string[]>(['Technology', 'Innovation']);
   const [isLoadingTags, setIsLoadingTags] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const handleFormat = (formatType: 'bold' | 'italic') => {
@@ -50,6 +51,46 @@ const ArticleForgePage: FC = () => {
     const newContent = `${content.substring(0, start)}\n${placeholderImage}\n${content.substring(start)}`;
     setContent(newContent);
   };
+  
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type.startsWith('text/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target?.result as string;
+          setContent(text);
+          toast({
+            title: 'File Uploaded',
+            description: `"${file.name}" has been loaded into the editor.`,
+          });
+        };
+        reader.onerror = () => {
+            toast({
+                title: 'Error Reading File',
+                description: 'There was an error reading the file.',
+                variant: 'destructive',
+            });
+        };
+        reader.readAsText(file);
+      } else {
+        toast({
+          title: 'Invalid File Type',
+          description: 'Please upload a plain text file (e.g., .txt, .md).',
+          variant: 'destructive',
+        });
+      }
+    }
+    // Reset file input to allow uploading the same file again
+    if(event.target) {
+        event.target.value = '';
+    }
+  };
+
 
   const handleSuggestTags = async () => {
     if (!content.trim()) {
@@ -139,6 +180,16 @@ const ArticleForgePage: FC = () => {
                         <Button variant="ghost" size="icon" onClick={handleImageEmbed} aria-label="Embed Image">
                             <ImageIcon className="h-5 w-5" />
                         </Button>
+                        <Button variant="ghost" size="icon" onClick={handleUploadClick} aria-label="Upload Article">
+                            <Upload className="h-5 w-5" />
+                        </Button>
+                        <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            onChange={handleFileChange} 
+                            className="hidden" 
+                            accept="text/plain,text/markdown,.md,.txt"
+                        />
                     </div>
                     <Textarea
                       ref={textareaRef}
