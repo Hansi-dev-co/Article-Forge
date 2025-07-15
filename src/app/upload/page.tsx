@@ -64,6 +64,9 @@ const UploadArticlePage: FC = () => {
         reader.onload = (e) => {
           const text = e.target?.result as string;
           setContent(text);
+          // Set the title based on the filename, without the extension
+          const fileName = file.name.split('.').slice(0, -1).join('.');
+          setTitle(fileName || "Uploaded Article");
           toast({
             title: 'File Uploaded',
             description: `"${file.name}" has been loaded into the editor.`,
@@ -151,17 +154,33 @@ const UploadArticlePage: FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              <div>
-                <Label htmlFor="title" className="text-lg font-medium">Title</Label>
-                <Input
-                  id="title"
-                  type="text"
-                  value={title}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
-                  placeholder="Your article title"
-                  className="mt-2 text-lg p-4"
-                />
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <div className="w-full">
+                    <Label htmlFor="title" className="text-lg font-medium">Title</Label>
+                    <Input
+                      id="title"
+                      type="text"
+                      value={title}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+                      placeholder="Your article title"
+                      className="mt-2 text-lg p-4"
+                    />
+                  </div>
+                  <div className="w-full sm:w-auto pt-7">
+                     <Button onClick={handleUploadClick} className="w-full">
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload from Computer
+                    </Button>
+                    <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        onChange={handleFileChange} 
+                        className="hidden" 
+                        accept="text/plain,text/markdown,.md,.txt"
+                    />
+                  </div>
               </div>
+
 
               <Tabs defaultValue="editor" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
@@ -180,16 +199,6 @@ const UploadArticlePage: FC = () => {
                         <Button variant="ghost" size="icon" onClick={handleImageEmbed} aria-label="Embed Image">
                             <ImageIcon className="h-5 w-5" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={handleUploadClick} aria-label="Upload Article">
-                            <Upload className="h-5 w-5" />
-                        </Button>
-                        <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            onChange={handleFileChange} 
-                            className="hidden" 
-                            accept="text/plain,text/markdown,.md,.txt"
-                        />
                     </div>
                     <Textarea
                       ref={textareaRef}
