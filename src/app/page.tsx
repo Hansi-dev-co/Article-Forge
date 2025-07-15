@@ -44,12 +44,11 @@ const HomePage: FC = () => {
             </div>
             <div>
               <Image 
-                src="https://placehold.co/600x400.png" 
-                alt="Article Forge Editor"
+                src="/author.jpg"
+                alt="A technologist author writing an article using Article Forge."
                 width={600}
                 height={400}
                 className="rounded-lg shadow-2xl"
-                data-ai-hint="digital editor screenshot"
               />
             </div>
           </div>
