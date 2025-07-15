@@ -4,6 +4,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { Button } from '@/components/ui/button';
 import { PenSquare } from 'lucide-react';
+import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export const metadata: Metadata = {
   title: 'Article Forge',
@@ -22,6 +24,7 @@ const Header = () => (
         <Link href="/about" className="text-foreground/80 hover:text-foreground transition-colors">About</Link>
       </nav>
       <div className="flex items-center gap-2">
+        <ThemeToggle />
         <Button variant="outline" asChild>
             <Link href="/login">Login</Link>
         </Button>
@@ -51,19 +54,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased bg-background text-foreground">
-        <div className="flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-        </div>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </div>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
